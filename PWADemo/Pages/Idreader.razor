@@ -1,0 +1,162 @@
+﻿@page "/idreader"
+@inject HttpClient Http
+@using System.Linq
+@using Microsoft.Extensions.Logging
+@inject ILogger<Idreader> Logger
+
+
+
+
+    <h3>Driver Licence Reader Demo</h3>
+
+
+    <div class="container">
+
+        <div class="row">
+            <input type="file" accept="image/*" class="form-control" capture>
+        </div>
+
+
+        <div class="row" style="padding-top: 10px">
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-default">Driver's Name</span>
+
+
+
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" id="idDriver" @bind="@driverId" style="padding-top:5px">
+
+
+                <button class="btn btn-primary" @onclick="OnValidateDriver" style="margin-left:10px">
+
+                    Validate
+                </button>
+
+
+
+
+            </div>
+        </div>
+
+
+
+
+
+        <div id="loadingAnimation">
+
+            <div>
+                <p><em>Validating...</em></p>
+            </div>
+            <div class="spinner-grow text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-secondary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-success" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-danger" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-warning" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-info" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-light" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="spinner-grow text-dark" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+
+
+        </div>
+
+        @if (ocResponse == null)
+        {
+
+        }
+        else
+        {
+            <div>
+                <label>@ocResponse.Accepted</label>
+            </div>
+
+            @if (ocResponse.Accepted == "yes")
+            {
+                <div>
+                    <h2>Please read carefully the next instructions</h2>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean a bibendum enim, in posuere diam. Nulla urna metus, tempor quis lacinia vel, lacinia id libero. Phasellus consequat velit nec consectetur commodo. Morbi eleifend urna vel ex tincidunt tincidunt. Curabitur egestas volutpat efficitur. Quisque congue luctus suscipit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus est nulla, a sollicitudin ex pellentesque sit amet. Integer sit amet odio id odio posuere vulputate non at justo. Aenean posuere, neque in consectetur venenatis, ex lacus pretium metus, id mattis metus nulla sit amet quam. Praesent sagittis magna ac eros suscipit maximus. Sed molestie orci odio, et scelerisque risus cursus et. Aenean consequat a massa et condimentum. Nulla euismod eu purus nec pharetra. Ut magna erat, tristique id tincidunt eget, eleifend eu leo. Nulla imperdiet turpis dignissim, mattis velit non, commodo nibh
+                    </p>
+                </div>
+                <br />
+                <br />
+
+
+
+                <button class="btn danger" @onclick="startValidation"><i class="fa fa-bars"></i> Start Scanning</button>
+
+                <br />
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="counter">
+                                <span class="counter-value">1931</span>
+                                <div class="counter-content">
+                                    <h3>Web Designing</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+    @code {
+
+                private bool loadingInfo = true;
+
+                private PWADemo.Models.OcularResponse ocResponse;
+                private String driverId = "";
+                //OnInitializedAsync
+                protected async Task OnValidateDriver()
+                {
+                    loadingInfo = false;
+                    var a = await Http.GetFromJsonAsync<PWADemo.Models.OcularResponse>(new Uri($"http://localhost:52107/api/values?driverName={driverId}"));
+                    ocResponse = a;
+
+                    loadingInfo = true;
+
+                }
+
+
+                protected void startValidation()
+                {
+
+                }
+
+
+            
+    }
+
+

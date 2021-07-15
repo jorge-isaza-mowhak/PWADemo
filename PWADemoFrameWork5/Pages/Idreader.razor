@@ -1,0 +1,292 @@
+﻿@page "/idreader"
+@inject HttpClient Http
+@using System.Linq
+@using Microsoft.Extensions.Logging
+@using Models
+@inject ILogger<Idreader> Logger
+
+
+
+<h3>Driver Licence Reader Demo</h3>
+
+
+<div class="container">
+
+
+    <br />
+    <div class="row">
+        <h2>
+            1. Please scan your License ID
+        </h2>
+    </div>
+    <div class="row">
+
+        <InputFile OnChange="@OnInputFileChange" multiple />
+    </div>
+
+
+
+
+    <div class="row" style="padding-top: 10px">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default">Driver's Name</span>
+
+            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" id="idDriver" @bind="@driverId" style="padding-top:5px">
+
+
+        </div>
+
+
+        <div class="row" style="margin-left:10px">
+            @if (@DirverName.Length > 0)
+            {
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <label>
+                            Hi @DirverName, please follow the folowing instructions
+                        </label>
+                    </div>
+
+                    <br />
+
+                    <div>
+
+
+
+                        <iframe width="560"
+                                height="315"
+                                src="https://www.youtube.com/embed/SwbJlED44sI"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+
+
+                    </div>
+
+                    <div class="row">
+                        <button class="btn btn-primary" @onclick="OnValidateDriver" style="margin-left:10px">
+
+                            Start Sanning
+                        </button>
+                    </div>
+                </div>
+
+
+            }
+
+        </div>
+
+
+    </div>
+
+
+
+    <div hidden="@loadingInfo">
+
+        <div>
+            <p><em>Scanning...</em></p>
+        </div>
+        <div class="spinner-grow text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-secondary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-success" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-danger" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-warning" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-info" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-light" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-dark" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+
+
+    </div>
+
+
+
+
+    @if (ocResponse == null)
+    {
+
+    }
+    else
+    {
+        <div>
+            <label>@ocResponse.Accepted</label>
+        </div>
+
+        <br />
+
+        @if (ocResponse.Accepted == "yes")
+        {
+            <div>
+                <h2>Results</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean a bibendum enim, in posuere diam. Nulla urna metus, tempor quis lacinia vel, lacinia id libero. Phasellus consequat velit nec consectetur commodo. Morbi eleifend urna vel ex tincidunt tincidunt. Curabitur egestas volutpat efficitur. Quisque congue luctus suscipit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus est nulla, a sollicitudin ex pellentesque sit amet. Integer sit amet odio id odio posuere vulputate non at justo. Aenean posuere, neque in consectetur venenatis, ex lacus pretium metus, id mattis metus nulla sit amet quam. Praesent sagittis magna ac eros suscipit maximus. Sed molestie orci odio, et scelerisque risus cursus et. Aenean consequat a massa et condimentum. Nulla euismod eu purus nec pharetra. Ut magna erat, tristique id tincidunt eget, eleifend eu leo. Nulla imperdiet turpis dignissim, mattis velit non, commodo nibh
+
+                </p>
+            </div>
+
+            <br />
+
+
+
+
+
+        }
+    }
+
+
+
+
+
+</div>
+
+@code {
+
+    private bool loadingInfo = true;
+
+    private bool hideVideo = true;
+
+    public String DirverName = "";
+
+    private OcularResponse ocResponse;
+    private String driverId = "";
+    //OnInitializedAsync
+    protected async Task OnValidateDriver()
+    {
+        loadingInfo = false;
+        var a = await Http.GetFromJsonAsync<OcularResponse>(new Uri($"http://localhost:52107/api/values?driverName={driverId}"));
+        ocResponse = a;
+
+        loadingInfo = true;
+
+    }
+
+
+    protected void startValidation()
+    {
+
+    }
+
+
+    private List<File> files = new List<File>();
+    private List<UploadResult> uploadResults = new List<UploadResult>();
+    private int maxAllowedFiles = 3;
+    private bool shouldRender;
+
+    //protected override bool ShouldRender() => shouldRender;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        shouldRender = false;
+        long maxFileSize = 1024 * 1024 * 15;
+        var upload = false;
+
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (uploadResults.SingleOrDefault(
+                f => f.FileName == file.Name) is null)
+            {
+                try
+                {
+                    var fileContent =
+                        new StreamContent(file.OpenReadStream(maxFileSize));
+
+                    files.Add(new File() { Name = file.Name });
+
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: file.Name);
+
+                    upload = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogInformation(
+                        "{FileName} not uploaded (Err: 6): {Message}",
+                        file.Name, ex.Message);
+
+                    uploadResults.Add(
+                        new UploadResult()
+                        {
+                            FileName = file.Name,
+                            ErrorCode = 6,
+                            Uploaded = false
+                        });
+                }
+            }
+        }
+
+        if (upload)
+        {
+            var response = await Http.PostAsync("http://localhost:52107/api/Filesave/UploadFile", content);
+
+            //var newUploadResults = await response.Content
+            //    .ReadFromJsonAsync<IList<UploadResult>>();
+            var newUploadResults = await response.Content
+              .ReadFromJsonAsync<DriverInfo>();
+
+            DirverName = newUploadResults.DriverName;
+            driverId = DirverName;
+
+            //uploadResults = uploadResults.Concat(newUploadResults).ToList();
+        }
+
+        shouldRender = true;
+    }
+
+    private static bool FileUpload(IList<UploadResult> uploadResults,
+        string fileName, ILogger<Idreader> logger, out UploadResult result)
+    {
+        result = uploadResults.SingleOrDefault(f => f.FileName == fileName);
+
+        if (result is null)
+        {
+            logger.LogInformation("{FileName} not uploaded (Err: 5)", fileName);
+            result = new UploadResult();
+            result.ErrorCode = 5;
+        }
+
+        return result.Uploaded;
+    }
+
+    private class File
+    {
+        public string Name { get; set; }
+    }
+
+    public class UploadResult
+    {
+        public bool Uploaded { get; set; }
+        public string FileName { get; set; }
+        public string StoredFileName { get; set; }
+        public int ErrorCode { get; set; }
+    }
+
+    public class DriverInfo
+    {
+        public string DriverName { get; set; }
+    }
+
+
+}
+
+
