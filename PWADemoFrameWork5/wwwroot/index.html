@@ -17,6 +17,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
 
     <script src="_content/BlazorStrap/blazorStrap.js"></script>
+    <script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -33,16 +34,61 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
 
 
 
     <script>
-        function SayHelloJS(name) {
-
-        }
+        window.convertArray = (win1251Array) => {
+            var win1251decoder = new TextDecoder('windows-1251');
+            var bytes = new Uint8Array(win1251Array);
+            var decodedArray = win1251decoder.decode(bytes);
+            console.log(decodedArray);
+            return decodedArray;
+        };
     </script>
 
+
+    <script>
+        window.displayTickerAlert2 = (symbol, price) => {
+            if (price < 20) {
+                alert(`${symbol}: $${price}!`);
+                return "User alerted in the browser.";
+            } else {
+                return "User NOT alerted.";
+            }
+        };
+    </script>
+
+
+    <script>
+        window.displayTickerAlert1 = (symbol, price) => {
+            alert(`${symbol}: $${price}!`);
+        };
+    </script>
+
+
+   
+
+    <script>
+
+        function handleConnectionChange(event) {
+            if (event.type == "offline") {
+                console.log("You lost connection.");
+            }
+            if (event.type == "online") {
+                console.log("You are now back online.");
+            }
+
+            console.log(new Date(event.timeStamp));
+
+            DotNet.invokeMethodAsync('PWADemoFrameWork5', 'StatusChanged', event.type);
+
+        }
+        window.addEventListener('online', handleConnectionChange);
+        window.addEventListener('offline', handleConnectionChange);
+
+    </script>
 
 </body>
 

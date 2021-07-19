@@ -1,7 +1,28 @@
 ﻿@page "/"
 
+@inject Microsoft.JSInterop.IJSRuntime ij
+@inject StateContainer StateContainer
+
+
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
+
+
+
+@code{
+    public static String IsOnline { get; set; }
+
+
+
+    [JSInvokable]
+    public static void StatusChanged(string isOnline)
+    {
+        IsOnline = isOnline;
+        StateContainer.AppIsOnline = IsOnline;
+    }
+
+
+}

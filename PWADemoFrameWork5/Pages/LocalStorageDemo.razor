@@ -1,0 +1,105 @@
+﻿@page "/LocalStorageDemo"
+@using Models
+@inject Blazored.LocalStorage.ILocalStorageService localStore
+
+
+
+<h3>LocalStorageDemo</h3>
+
+<button class="btn-primary" @onclick="SaveData">Save Data</button>
+
+<button class="btn-primary" @onclick="ShowData">Show Data</button>
+
+<button class="btn-primary" @onclick="ClearData">Clear Data</button>
+
+
+<button class="btn-primary" @onclick="ListData">List Data</button>
+
+
+
+<br />
+
+<label>@CurrentFirstName</label>
+<br />
+
+<label>Num Records: @numRecords</label>
+
+<br />
+
+
+@foreach(var el in lsDI)
+            {
+<div class="row">
+    <label>First Name: @el.FirstName</label>
+    <label>Last NAme: @el.LastName</label>
+</div>
+            }
+
+
+
+@code {
+
+    /* To see a tutorial
+ https://www.youtube.com/watch?v=QWtNKmoufzc
+*/
+    int _id = 0;
+    String CurrentFirstName = "";
+    int numRecords = 0;
+
+    List<DriverInformation> lsDI = new List<DriverInformation>();
+
+    protected async Task SaveData()
+    {
+
+        Random rd = new Random();
+        _id = rd.Next();
+
+        DriverInformation di = new DriverInformation() { ID = _id, FirstName = "Test1 first name" + _id.ToString(), LastName = "Test1 last name" + _id.ToString() };
+
+        await localStore.SetItemAsync(_id.ToString(), di);
+
+        await NumRecords();
+
+    }
+
+    protected async Task ShowData()
+    {
+        var cdi = await localStore.GetItemAsync<DriverInformation>(_id.ToString());
+
+        CurrentFirstName = cdi.FirstName;
+
+    }
+
+
+    protected async Task ClearData()
+    {
+        await localStore.ClearAsync();
+        await NumRecords();
+    }
+
+    protected async Task NumRecords()
+    {
+        numRecords = await localStore.LengthAsync();
+
+    }
+
+
+    protected async Task ListData()
+    {
+        numRecords = await localStore.LengthAsync();
+
+        for (int i = 0; i< numRecords; i++) {
+            String curKey = await localStore.KeyAsync(i);
+            var cdi = await localStore.GetItemAsync<DriverInformation>(curKey);
+
+            lsDI.Add(cdi);
+
+
+        }
+
+
+
+    }
+
+
+}

@@ -10,11 +10,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.1.2" />
     <PackageReference Include="BlazorStrap" Version="1.5.1" />
-    <PackageReference Include="DnetIndexedDb" Version="2.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.8" PrivateAssets="all" />
+    <PackageReference Include="ProtectedBrowserStorage.NETStandard" Version="1.1.2" />
+    <PackageReference Include="Reshiru.Blazor.IndexedDB.Framework" Version="1.0.1" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="TG.Blazor.IndexedDB" Version="1.5.0-preview" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,144 @@
+﻿@page "/IndexedDBDemo"
+@inject IIndexedDbFactory DbFactory
+
+@inject Microsoft.JSInterop.IJSRuntime ij
+
+
+@inject NavigationManager UriHelper
+
+@inject StateContainer StateContainer
+
+
+
+<h3>IndexedDBDemo</h3>
+@if (employ != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First name</th>
+                <th>Last name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in employ)
+            {
+                <tr>
+                    <td>@employee.Id</td>
+                    <td>@employee.FirstName</td>
+                    <td>@employee.LastName</td>
+                    <td><button @onclick="@(() => DeleteForm(employee))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<fieldset>
+    <legend>Add new person</legend>
+    <EditForm Model="@newEmployee" OnValidSubmit="@SaveForm">
+        <InputText placeholder="First name" @bind-Value="@newEmployee.FirstName" />
+        <InputText placeholder="Last name" @bind-Value="@newEmployee.LastName" />
+        <button type="submit">Add</button>
+        <p><ValidationSummary /></p>
+        <DataAnnotationsValidator />
+    </EditForm>
+</fieldset>
+
+
+<br />
+
+
+<button class="btn-primary" @onclick="TetsOffline">Tets Offline</button>
+
+<br />
+
+<label>Status :  @StateContainer.AppIsOnline</label>
+
+<br />
+
+
+
+
+@code {
+
+
+    Person newEmployee = new Person();
+    List<Person> employ;
+    String OfflineStatus = "";
+
+
+    [Parameter]
+    public RenderFragment Online { get; set; }
+
+    [Parameter]
+    public RenderFragment Offline { get; set; }
+
+    public String IsOnline { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var db = await DbFactory.Create<ExampleDB>();
+        employ = db.Employees.ToList();
+
+
+        UriHelper.LocationChanged += DetectNavigation;
+
+
+        StateContainer.OnChange += StateHasChanged;
+
+    }
+
+    private void getChange()
+    {
+        String strO = "aaaa";
+        IsOnline = StateContainer.AppIsOnline;
+    }
+
+    async Task SaveForm()
+    {
+        using var db = await this.DbFactory.Create<ExampleDB>();
+        db.Employees.Add(newEmployee);
+        await db.SaveChanges();
+
+        newEmployee = new Person();
+
+        await OnInitializedAsync();
+
+    }
+
+    async Task DeleteForm(Person person)
+    {
+        using var db = await this.DbFactory.Create<ExampleDB>();
+        db.Employees.Remove(person);
+        await db.SaveChanges();
+        await OnInitializedAsync();
+
+    }
+
+
+    async Task TetsOffline()
+    {
+
+        //var isWebAssembly = await ij.;
+
+        //OfflineStatus = await isWebAssembl;
+
+    }
+
+
+    private void DetectNavigation(object sender, LocationChangedEventArgs e)
+    {
+        ij.InvokeVoidAsync("alert", "Navigation event triggered");
+    }
+
+
+    [JSInvokable]
+    public void StatusChanged(string isOnline)
+    {
+        IsOnline = isOnline;
+    }
+
+}
